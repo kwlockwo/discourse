@@ -19,10 +19,15 @@ apt install -y nginx-common libpcre3 libpcre3-dev zlib1g zlib1g-dev
 
 cd /tmp
 # this is the reason we are compiling by hand...
-git clone https://github.com/google/ngx_brotli.git
+# git clone https://github.com/google/ngx_brotli.git
 # now ngx_brotli has brotli as a submodule
-cd /tmp/ngx_brotli
-git submodule update --init
+# cd /tmp/ngx_brotli
+# git submodule update --init
+git clone --recurse-submodules -j8 https://github.com/google/ngx_brotli
+cd ngx_brotli/deps/brotli
+mkdir out && cd out
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed ..
+cmake --build . --config Release --target brotlienc
 
 cd /tmp/nginx-$VERSION
 # ignoring depracations with -Wno-deprecated-declarations while we wait for this https://github.com/google/ngx_brotli/issues/39#issuecomment-254093378
